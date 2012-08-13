@@ -219,6 +219,45 @@ jQuery("table#JournalLinkTable").find("tr").each(function(index) { // Grab value
 		
 });
 
+
+// Handling of Books
+
+jQuery("table#BookLinkTable").find("tr").each(function(index) { // Grab values from the results table
+	
+	if(index !== 0) { 
+				
+		// Get the book link, if available
+		
+		if(jQuery(this).find("#BookCL a").length > 0) { // There is a journal link
+
+			var newHref = jQuery(this).find("#BookCL a").attr("href");
+
+			bookLinksdata = bookLinksdata + newHref + "|||";
+
+		} else { // No article length
+
+			bookLinksdata = bookLinksdata + "NA|||";
+
+		}
+		
+		// Get the database name
+		
+		var newDBName = jQuery(this).find("#DatabaseCL").text();
+		
+		DatabaseNamedata = DatabaseNamedata + newDBName + "|||";
+		
+		// Get the database link
+		
+		var newDBLink = jQuery(this).find("#DatabaseCL a").attr("href");
+		
+		DatabaseLinkdata = DatabaseLinkdata + newDBLink + "|||";
+					
+	}
+	
+	results = index; // Get total number of results
+		
+});
+
 // Bust apart arrays into variabls we can call
 
 var articleLinks = articleLinksdata.split("|||");
