@@ -1,6 +1,4 @@
-
 jQuery(document).ready(function() {
-
 
 // Since 360Link loads Prototype, need to use the jQuery prefix instead of $ 
 // to avoid conflicts with Prototype.
@@ -10,13 +8,13 @@ jQuery("head link").remove(); // Remove existing styles
 var results = ""; 
 var articleLinksdata = "";
 var journalLinksdata = "";
+var bookLinksdata = "";
 var dateRangedata = "";
 var DatabaseNamedata = "";
 var DatabaseLinkdata = "";
 var clicks = 0;
 var refinerlink = jQuery("#RefinerLink0 a").attr("href");
 var hasPrint = false;
-
 //define variables for capturing faulty URLs
 
 var link = "";
@@ -72,15 +70,19 @@ var nextstepsLink = '<li>Not Available Online? <a href="' + illiadLink + '">Orde
 }
 
 // Books
-
 if (format === "BookFormat" || format === "Book") {
 	
+	authorName = jQuery("td#CitationBookAuthorValue").text();
 	var bookTitle = jQuery("td#CitationBookTitleValue").text();
-	bookTitle = jQuery.trim(bookTitle); // Trim leading white space form book title
+	bookTitle = jQuery.trim(bookTitle); // Trim leading white space from book title
 	var bookDate = jQuery("td#CitationBookDateValue").text();
-	bookDate = jQuery.trim(bookDate); // Trim leading white space form journal name
+	bookDate = jQuery.trim(bookDate); // Trim leading white space from date
 	var bookisbn = jQuery("td#CitationBookISBNValue").text();
-	bookisbn = jQuery.trim(bookisbn); // Trim leading white space form journal name
+	bookisbn = jQuery.trim(bookisbn); // Trim leading white space from ISBM
+	/* Let's add some book covers
+var bookCoverLink = 'http://www.syndetics.com/hw7.pl?isbn=' + bookisbn + '/SC.GIF&client=rit&type=rn12 alt="Book Cover';
+bookCoverLink = encodeURI(bookCoverLink);
+	*/
 	if (bookisbn !== "") { bookisbn = '&nbsp;<span id="CitationBookISBNValue">(ISBN:&nbsp;' + bookisbn + ')</span>&nbsp;'; } // Add context so if var is blank it will not display
 	
 	// Ok, let's get rid of that table and replace it with a semantic div for our citation
@@ -126,9 +128,9 @@ var nextstepsLink = '<li><a href="http://library.catalog.gvsu.edu/search/t' + bo
 if (format === "Dissertation" || format === "DissertationFormat") {
 	
 		var dissTitle = jQuery("td#CitationDissertationTitleValue").text();
-		dissTitle = jQuery.trim(dissTitle); // Trim leading white space form book title
+		dissTitle = jQuery.trim(dissTitle); // Trim leading white space from book title
 		var dissDate = jQuery("td#CitationDissertationDateValue").text();
-		dissDate = jQuery.trim(dissDate); // Trim leading white space form journal name
+		dissDate = jQuery.trim(dissDate); // Trim leading white space from journal name
 	
 		// Ok, let's get rid of that table and replace it with a semantic div for our citation
 
@@ -234,7 +236,7 @@ jQuery("table#BookLinkTable").find("tr").each(function(index) { // Grab values f
 
 			bookLinksdata = bookLinksdata + newHref + "|||";
 
-		} else { // No article length
+		} else { // No book length
 
 			bookLinksdata = bookLinksdata + "NA|||";
 
@@ -258,10 +260,11 @@ jQuery("table#BookLinkTable").find("tr").each(function(index) { // Grab values f
 		
 });
 
-// Bust apart arrays into variabls we can call
+// Bust apart arrays into variables we can call
 
 var articleLinks = articleLinksdata.split("|||");
 var journalLinks = journalLinksdata.split("|||");
+var bookLinks = bookLinksdata.split("|||");
 var dateRange = dateRangedata.split("|||");
 var DatabaseNames = DatabaseNamedata.split("|||");
 var DatabaseLinks = DatabaseLinkdata.split("|||");
@@ -274,17 +277,30 @@ TopDatabaseName = jQuery.trim(DatabaseNames[0]);
 	
 // Check to see if top result is a print journal
 
-if(TopDatabaseName === "Print at GVSU Libraries") {
-	
-var topResultdiv = '<ul id="top-result"><li><a href="' + journalLinks[0] + '" class="article-button" target="_blank">Find a Copy</a> in <a href="' + DatabaseLinks[0] + '" class="SS_DatabaseHyperLink">' + jQuery.trim(DatabaseNames[0]) + '</a></li></ul>';
-var hasPrint = true;	
-} else {
-
-var topResultdiv = '<ul id="top-result"><li><a href="' + journalLinks[0] + '" class="article-button" target="_blank">Browse the Journal Online</a> in <a href="' + DatabaseLinks[0] + '" class="SS_DatabaseHyperLink">' + jQuery.trim(DatabaseNames[0]) + '</a></li></ul>';
-
-}} else { // There is an article link
+	if(TopDatabaseName === "Print at RIT Libraries") {
 		
-var topResultdiv = '<ul id="top-result"><li><a href="' + articleLinks[0] + '" class="article-button" target="_blank">Full Text Online</a> from <a href="' + DatabaseLinks[0] + '" class="SS_DatabaseHyperLink">' + jQuery.trim(DatabaseNames[0]) + '</a> <a class="holding-details"><img src="http://gvsu.edu/icon/help.png" alt="" /></a><div class="tooltip"><p><a href="' + journalLinks[0] + '" style="text-decoration: none;">Browse Journal</a></p><p style="font-size: 1em;"><i>Dates covered:</i><br />' + dateRange[0] + '</p></div></li></ul>';
+
+		var topResultdiv = '<ul id="top-result"><li><a href="' + journalLinks[0] + '" class="article-button" target="_blank">Find a Copy</a> in <a href="' + DatabaseLinks[0] + '" class="SS_DatabaseHyperLink">' + jQuery.trim(DatabaseNames[0]) + '</a></li></ul>';
+		var hasPrint = true;	
+	} 
+
+
+	else {
+
+		var topResultdiv = '<ul id="top-result"><li><a href="' + journalLinks[0] + '" class="article-button" target="_blank">Browse the Journal</a> in <a href="' + DatabaseLinks[0] + '" class="SS_DatabaseHyperLink">' + jQuery.trim(DatabaseNames[0]) + '</a></li></ul>';
+
+	}
+} 
+else { // There is an article or book link
+	
+	if (bookLinks[0] !== "NA" && (format === "Book" || format === "BookFormat")) {
+		var topResultdiv = '<ul id="top-result"><img id="bookCover" src=' + bookCoverLink + '><li><a href="' + bookLinks[0] + '" class="article-button" target="_blank">Full Text Online</a> from <a href="' + DatabaseLinks[0] + '" class="SS_DatabaseHyperLink">' + jQuery.trim(DatabaseNames[0]) + '</a></li></ul>';
+	}
+	
+	else {
+
+		var topResultdiv = '<ul id="top-result"><li><a href="' + articleLinks[0] + '" class="article-button" target="_blank">Full Text Online</a> from <a href="' + DatabaseLinks[0] + '" class="SS_DatabaseHyperLink">' + jQuery.trim(DatabaseNames[0]) + '</a> <a class="holding-details"><img src="http://library.rit.edu/citationlinker/help.png" alt="" /></a><div class="tooltip"><a href="' + journalLinks[0] + '" style="text-decoration: none;">Browse Journal</a></p><p style="font-size: 1em;"><i>Dates covered:</i><br />' + dateRange[0] + '</div></li></ul>';
+	}
 	
 }
 
@@ -378,7 +394,10 @@ var Resultdiv = topResultdiv;
 if(results === "") { // Item is not available online or in print
 	
 	var Resultdiv = '<div id="ContentNotAvailableTable"><p class="lib-big-text">We&#8217;re sorry, but this item is not available online.</p><p>Think this is an error? Let our eResources team know at <a href="mailto:erms@gvsu.edu">erms@gvsu.edu</a>.</p></div>';
-	
+	/*
+		Buttonize DocDel Request
+		var Resultdiv = '<div id="ContentNotAvailableTable"><a class="article-button" href="' + illiadLink + '">Submit</a> a request.  We&#39;ll get it for you!</div>';
+	*/
 
 }
 
@@ -454,15 +473,23 @@ jQuery("#360link-reset").html('<div id="page-content" style="margin: 0; padding-
 
 }
 
+jQuery(".holding-details").tooltip({offset:[0,0]});
+
 // Let's show a tooltip highlighting Document Delivery when the user has tried a few sources.
 // First, let's add the code for the tooltip:
 
-jQuery("#next-step ul").append('<li class="doc-del-tooltip">Having trouble? You can order a copy from Document Delivery, and they\'ll get it for you. It\'s free!<br /><a href="' + illiadLink + '" class="lib-db-access-button" style="font-size: 1.2em !important;">Order a Copy</a></li>');
+jQuery("#next-step ul").append('<li class="doc-del-tooltip">Having trouble? You can request a copy from IDS, and they\'ll get it for you for free!<br /><a href="' + illiadLink + '" class="lib-db-access-button" style="font-size: 1.2em !important;">Request a Copy</a></li>');
 jQuery(".doc-del-tooltip").hide();
 
+// Sliding div for Show/Hide More Results
+
+jQuery(".event-body").hide();
+jQuery(".event-head").show();
+jQuery(".event-head").click(function(){
+	jQuery(".event-body").slideToggle();
+});
+
 // Now let's count clicks
-
-
 
 jQuery("#360link-reset ul li a").click(function() {
 	
